@@ -1,0 +1,61 @@
+{
+    "products":[
+       {
+          "id":1,
+          "name":"Arena con Beneficio",
+          "unidadMedida":"M3",
+          "precioCosto":300,
+          "price":500,
+          "stock":54,
+          "category":"home-decoration",
+          "origin": "La India",
+          "sellPrice": 100,
+          "sellStock": 20
+       },
+       {
+        "id":2,
+        "name":"Planchas de Techo",
+        "unidadMedida":"Unid.",
+        "precioCosto":5000,
+        "price":12000,
+        "stock":120,
+        "category":"home-decoration",
+        "origin": "La India",
+        "sellPrice": 4000,
+        "sellStock": 50
+     },   {
+        "id":3,
+        "name":"Tubos Led",
+        "unidadMedida":"Unid.",
+        "precioCosto":40,
+        "price":60,
+        "stock":200,
+        "category":"home-decoration",
+        "origin": "La India",
+        "sellPrice": 50,
+        "sellStock": 10
+     },   {
+        "id":4,
+        "name":"Tasas",
+        "unidadMedida":"Unid.",
+        "precioCosto":6000,
+        "price":15000,
+        "stock":67,
+        "category":"home-decoration",
+        "sellPrice": 15000,
+        "sellStock": 60
+     },
+     {
+      "id":5,
+      "name":"Arena con Beneficio",
+      "unidadMedida":"M3",
+      "precioCosto":300,
+      "price":600,
+      "stock":10,
+      "category":"home-decoration",
+      "origin": "La India",
+      "sellPrice": 150,
+      "sellStock": 0
+   }
+    ]
+}
