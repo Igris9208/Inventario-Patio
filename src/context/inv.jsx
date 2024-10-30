@@ -47,7 +47,7 @@ export function InvProvider({ children }) {
 
   const addToInv = (newProducts) => {
     newProducts.forEach((product) => {
-      if (product.id) {
+      if (product.id != "") {
         let index = myProducts.findIndex((prod) => prod.id === product.id);
         let addProduct = myProducts;
         addProduct[index].stock += product.stock;

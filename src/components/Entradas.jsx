@@ -27,24 +27,30 @@ export default function Entradas() {
   const [stock, setStock] = useState("");
   const [price, setPrice] = useState("");
   const [precioCosto, setPrecioCosto] = useState("");
-  const { addToInv, indexProductChange, myProducts } = useInv();
+  const { addToInv, indexProductChange, myProducts, facturas } = useInv();
   const [addcrash, setAddCrash] = useState(false);
   const [key, setKey] = useState(true);
   const [changeCheck, setChangeCheck] = useState(false);
   const { productLabel, precioCostoLabel, unidadMedidaLabel, originLabel } =
     useLabel(name, precioCosto);
   const [productToCHange, setProductToChange] = useState(null);
-  let sellStock;
+  let sellStock = 0;
   let category;
+  
 
   const [checkFind, setCheckFind] = useState(false);
   const indexProductsRepeat = findProducts(name, precioCosto);
   const [indexPosition, setIndexPosition] = useState(0);
-  const [sellPrice, setSellPrice] = useState("");
+  const [sellPrice, setSellPrice] = useState(0);
   const [actualStock, setActualStock] = useState("");
   const [idProductRepeat, setIDProductRepeat] = useState("");
+  const [auxiliarUnidadMedida, setAuxiliarUnidadMedida] = useState("");
+
+ // console.log(myProducts);
+ // console.log(facturas);
 
   const changeProductFounded = () => {
+    setAuxiliarUnidadMedida(unidadMedida);
     setCheckFind(true);
     let index = "";
     if (indexProductsRepeat.length > 1) {
@@ -57,6 +63,14 @@ export default function Entradas() {
     setActualStock(myProducts[index].stock);
     setIDProductRepeat(myProducts[index].id);
     setUnidadMedida(myProducts[index].unidadMedida);
+  };
+
+  const cancelProductFounded = () => {
+    setUnidadMedida(auxiliarUnidadMedida)
+    setCheckFind(false);
+    setSellPrice(0);
+    setActualStock("");
+    setIDProductRepeat("");
   };
 
   const clearNewProduct = (indexProductChange) => {
@@ -81,6 +95,8 @@ export default function Entradas() {
   const addInvButton = () => {
     addToInv(newProducts);
     setNewProducts([]);
+    setOriging("");
+    setFact("");
   };
 
   const addProduct = () => {
@@ -137,6 +153,8 @@ export default function Entradas() {
         setStock("");
         setPrecioCosto("");
         setPrice("");
+        setSellPrice(0);
+        setIDProductRepeat("");
         setKey(!key);
         setActualStock("");
         setAddCrash(false);
@@ -164,11 +182,11 @@ export default function Entradas() {
 
   const calcInt = (value, selec) => {
     if (selec === "costPrice") {
-      setPrecioCosto(value.toString());
-      setPrice(value * stock);
+      setPrecioCosto(+value);
+      setPrice(+(value * stock));
     } else {
-      setPrecioCosto((value / stock).toString());
-      setPrice(value);
+      setPrecioCosto(+(value / stock));
+      setPrice(+value);
     }
   };
 
@@ -187,7 +205,7 @@ export default function Entradas() {
   const defaultUnidadMedida = {
     options: unidadMedidaLabel,
   };
-  console.log(newProducts.length);
+
   return (
     <main className="products">
       <h1>Nueva Factura</h1>
@@ -225,6 +243,7 @@ export default function Entradas() {
               <Autocomplete
                 freeSolo
                 {...defaultOrigin}
+                disabled={newProducts.length > 0 ? true : false}
                 id="Procedencia"
                 renderInput={(params) => (
                   <TextField
@@ -265,7 +284,6 @@ export default function Entradas() {
             <Grid item xs={2}>
               <Autocomplete
                 freeSolo
-                sx={{ width: 200 }}
                 {...defaultUnidadMedida}
                 id="Unidad de Medida"
                 disabled={checkFind}
@@ -293,7 +311,7 @@ export default function Entradas() {
                 variant="outlined"
                 value={stock.toString()}
                 onKeyDown={handleKeyDownWithDot}
-                onChange={(ev) => setStock(ev.target.value)}
+                onChange={(ev) => setStock(+ev.target.value)}
               />
             </Grid>
             <Grid item xs={2}>
@@ -376,7 +394,11 @@ export default function Entradas() {
                     <Grid item>
                       <strong>Precio de Venta</strong>
                     </Grid>
-                    <Grid item>${sellPrice.toString()}</Grid>
+                    <Grid item>
+                      {sellPrice
+                        ? "$" + sellPrice.toString()
+                        : "Sin establecer"}
+                    </Grid>
                   </Grid>
                   <Grid item xs={3}>
                     <Grid item>
@@ -388,7 +410,16 @@ export default function Entradas() {
                     <Grid item>
                       <strong>Existencia Final</strong>
                     </Grid>
-                    <Grid item>{actualStock + +stock}</Grid>
+                    <Grid item>{+actualStock + +stock}</Grid>
+                  </Grid>
+                  <Grid item xs={1.2}>
+                    <Button
+                      color="info"
+                      variant="contained"
+                      onClick={cancelProductFounded}
+                    >
+                      CANCEL
+                    </Button>
                   </Grid>
                 </Grid>
               )}

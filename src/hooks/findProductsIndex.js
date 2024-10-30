@@ -9,7 +9,7 @@ export function findProducts(name, precioCosto) {
     for (let i = 0; i < myProducts.length; i++) {
       if (
         myProducts[i].name === name &&
-        myProducts[i].precioCosto.toString() === precioCosto
+        myProducts[i].precioCosto === precioCosto
       ) {
         indexProductsRepeat.push(i);
       }
