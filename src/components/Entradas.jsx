@@ -46,8 +46,8 @@ export default function Entradas() {
   const [idProductRepeat, setIDProductRepeat] = useState("");
   const [auxiliarUnidadMedida, setAuxiliarUnidadMedida] = useState("");
 
- // console.log(myProducts);
- // console.log(facturas);
+  console.log(facturas);
+  console.log(myProducts);
 
   const changeProductFounded = () => {
     setAuxiliarUnidadMedida(unidadMedida);

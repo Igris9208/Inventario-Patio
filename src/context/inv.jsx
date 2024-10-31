@@ -46,35 +46,31 @@ export function InvProvider({ children }) {
   };
 
   const addToInv = (newProducts) => {
+    let addFactura = facturas;
+    let addProduct = myProducts;
     newProducts.forEach((product) => {
       if (product.id != "") {
         let index = myProducts.findIndex((prod) => prod.id === product.id);
-        let addProduct = myProducts;
         addProduct[index].stock += product.stock;
-        setMyProducts(addProduct);
+        addFactura.push({ ...product });
       } else {
         let auxiliarID = myProducts[myProducts.length - 1].id + +1;
-        let addProduct = [
-          ...myProducts,
-          {
-            id: auxiliarID,
-            name: product.name,
-            stock: product.totalStock,
-            sellStock: product.sellStock,
-            price: product.price,
-            precioCosto: product.precioCosto,
-            unidadMedida: product.unidadMedida,
-            category: product.category,
-            sellPrice: product.sellPrice,
-          },
-        ];
+        addProduct.push({
+          id: auxiliarID,
+          name: product.name,
+          stock: product.totalStock,
+          sellStock: product.sellStock,
+          price: product.price,
+          precioCosto: product.precioCosto,
+          unidadMedida: product.unidadMedida,
+          category: product.category,
+          sellPrice: product.sellPrice,
+        });
         setMyProducts(addProduct);
+        addFactura.push({ ...product, id: auxiliarID });
       }
     });
-    ///setFacturas(...facturas, ...newProducts);
-
-    let addFactura = facturas;
-    addFactura.push(...newProducts);
+    setMyProducts(addProduct);
     setFacturas(addFactura);
   };
 
