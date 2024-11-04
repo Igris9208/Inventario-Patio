@@ -13,7 +13,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment";
 import { validateInt, handleKeyDownWithDot } from "../hooks/validateInt";
-import { FacTable, ReportTable, SalidaTable } from "../hooks/showtable";
+import { FacTable, ReportTable, SalidaTable } from "./showtable";
 import { DateField } from "@mui/x-date-pickers/DateField";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
@@ -36,14 +36,6 @@ export default function Reportes() {
     setmyOption(e);
     setShow(false);
     setNotFound(false);
-    switch (e) {
-      case "Facturas":
-        setMyType("fact");
-        break;
-      case "Traslados":
-        setMyType("trasl");
-        break;
-    }
   };
 
   const handleChangeSelec = (event) => {
@@ -91,7 +83,7 @@ export default function Reportes() {
         }}
       >
         <h1>REPORTES</h1>
-        <Grid container rowSpacing={3}>
+        <Grid container spacing={3}>
           <Grid item xs={12} container columnSpacing={1}>
             <Grid item>
               <Button
@@ -246,13 +238,13 @@ export default function Reportes() {
               </Grid>
             )}
           </Grid>
-          <Grid item>
+          <Grid item container xs={12}>
             {show === true && (
               <>
                 {myOption === "Salidas" ? (
-                  <SalidaTable newProducts={showProducts} />
+                  <SalidaTable showProducts={showProducts}  />
                 ) : myOption === "Facturas" ? (
-                  <FacTable newProducts={showProducts} />
+                  <FacTable showProducts={showProducts} origenDeSolicitud={"Reportes"}/>
                 ) : (
                   <p>TRABAJANDO</p>
                 )}

@@ -13,7 +13,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment";
 import { handleKeyDownWithDot } from "../hooks/validateInt";
-import { SalidaTable } from "../hooks/showtable";
+import { SalidaTable } from "./showtable";
 
 export default function Salidas() {
   const [newProducts, setNewProducts] = useState([]);

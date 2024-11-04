@@ -13,7 +13,7 @@ import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
 import InputAdornment from "@mui/material/InputAdornment";
 import { handleKeyDownWithDot } from "../hooks/validateInt";
-import { FacTable } from "../hooks/showtable";
+import { FacTable } from "./showtable";
 import { findProducts } from "../hooks/findProductsIndex";
 import Typography from "@mui/material/Typography";
 
@@ -45,9 +45,6 @@ export default function Entradas() {
   const [actualStock, setActualStock] = useState("");
   const [idProductRepeat, setIDProductRepeat] = useState("");
   const [auxiliarUnidadMedida, setAuxiliarUnidadMedida] = useState("");
-
-  console.log(facturas);
-  console.log(myProducts);
 
   const changeProductFounded = () => {
     setAuxiliarUnidadMedida(unidadMedida);
@@ -437,7 +434,7 @@ export default function Entradas() {
           {newProducts.length > 0 && (
             <>
               <Grid item xs={12}>
-                <FacTable newProducts={newProducts} tipo={"Factura"} />
+                <FacTable showProducts={newProducts} tipo={"Factura"} />
               </Grid>
 
               <Grid item xs={12} margin={2} container columnSpacing={1}>
