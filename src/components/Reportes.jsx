@@ -24,7 +24,7 @@ import { TroubleshootTwoTone } from "@mui/icons-material";
 export default function Reportes() {
   const { facturas, ventasDiarias } = useInv();
   const [myOption, setmyOption] = useState("");
-  const [myType, setMyType] = useState("");
+  const [dateRange, setDateRange] = useState([]);
   const [fechaInicial, setFechaInicial] = useState(dayjs());
   const [fechaFinal, setFechaFinal] = useState(dayjs());
   const [show, setShow] = useState("false");
@@ -43,6 +43,7 @@ export default function Reportes() {
   };
 
   const Mostrar = (e) => {
+    setDateRange([fechaInicial,fechaFinal])
     setShow(false);
     setNotFound(false);
     let addShowProducts = [];
@@ -68,12 +69,14 @@ export default function Reportes() {
             addShowProducts.push(product);
           }
         });
+        addShowProducts.sort((a,b) => a.fecha - b.fecha);
         setShowProducts(addShowProducts);
         break;
     }
     addShowProducts.length > 0 ? setShow(true) : setNotFound(true);
   };
 
+  
   return (
     <main className="products">
       <Box
@@ -244,7 +247,7 @@ export default function Reportes() {
                 {myOption === "Salidas" ? (
                   <SalidaTable showProducts={showProducts}  />
                 ) : myOption === "Facturas" ? (
-                  <FacTable showProducts={showProducts} origenDeSolicitud={"Reportes"}/>
+                  <FacTable showProducts={showProducts} origenDeSolicitud={"Reportes"} dateRange={dateRange}/>
                 ) : (
                   <p>TRABAJANDO</p>
                 )}

@@ -5,7 +5,7 @@ export function useOrdenateShowFact(showProducts) {
   let indexshowProductsFilters = 0;
 
   showProducts.map((product, index) => {
-    if (product.fact == filtersFactura) {
+    if (product.fact === filtersFactura) {
       showProductsFilters[indexshowProductsFilters].push(product);
     } else {
       showProductsFilters.push([product]);
