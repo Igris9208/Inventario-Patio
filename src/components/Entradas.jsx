@@ -27,7 +27,7 @@ export default function Entradas() {
   const [stock, setStock] = useState("");
   const [price, setPrice] = useState("");
   const [precioCosto, setPrecioCosto] = useState("");
-  const { addToInv, indexProductChange, myProducts, facturas } = useInv();
+  const { addToInv, indexProductChange, myProducts } = useInv();
   const [addcrash, setAddCrash] = useState(false);
   const [key, setKey] = useState(true);
   const [changeCheck, setChangeCheck] = useState(false);
@@ -36,7 +36,6 @@ export default function Entradas() {
   const [productToCHange, setProductToChange] = useState(null);
   let sellStock = 0;
   let category;
-  
 
   const [checkFind, setCheckFind] = useState(false);
   const indexProductsRepeat = findProducts(name, precioCosto);
@@ -63,7 +62,7 @@ export default function Entradas() {
   };
 
   const cancelProductFounded = () => {
-    setUnidadMedida(auxiliarUnidadMedida)
+    setUnidadMedida(auxiliarUnidadMedida);
     setCheckFind(false);
     setSellPrice(0);
     setActualStock("");
@@ -90,7 +89,7 @@ export default function Entradas() {
   };
 
   const addInvButton = () => {
-    addToInv(newProducts);
+    addToInv(newProducts, "Factura");
     setNewProducts([]);
     setOriging("");
     setFact("");
@@ -208,6 +207,7 @@ export default function Entradas() {
       <h1>Nueva Factura</h1>
       <Box sx={{ flexGrow: 1 }}>
         <Grid container rowSpacing={2}>
+          {/* Se recogen los datos de los productos*/}
           <Grid item xs={12} container columnSpacing={0}>
             <Grid item xs={6}>
               <TextField
@@ -354,6 +354,7 @@ export default function Entradas() {
               />
             </Grid>
           </Grid>
+          {/* Cuando se encuentra una coincidencia en el inventario igual a la entrada*/}
           {indexProductsRepeat.length > 0 && (
             <Grid item xs={12} container spacing={1} alignItems={"center"}>
               <Grid item xs={2.8} alignItems={"center"}>
@@ -381,7 +382,11 @@ export default function Entradas() {
                   variant="contained"
                   onClick={changeProductFounded}
                 >
-                  SHOW
+                  {checkFind === false
+                    ? "SHOW"
+                    : indexProductsRepeat.length > 1
+                    ? "NEXT"
+                    : "SHOW"}
                 </Button>
               </Grid>
 
@@ -434,9 +439,9 @@ export default function Entradas() {
           {newProducts.length > 0 && (
             <>
               <Grid item xs={12}>
-                <FacTable showProducts={newProducts} tipo={"Factura"} />
+                <FacTable showProducts={newProducts} />
               </Grid>
-
+              {/*Modificar o eliminar productos ya adicionados*/}
               <Grid item xs={12} margin={2} container columnSpacing={1}>
                 {indexProductChange != null && (
                   <>

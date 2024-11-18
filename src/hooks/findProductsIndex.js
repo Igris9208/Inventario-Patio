@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useInv } from "./useInv";
 
+//Funcion para buscar si hay algun producto en el 
+//inventario que coincida con el nombre y el precio de costo de la entrada
+
 export function findProducts(name, precioCosto) {
   const { myProducts } = useInv();
   const indexProductsRepeat = [];

@@ -45,7 +45,7 @@ export default function Salidas() {
 
   const [changeCheck, setChangeCheck] = useState(false);
   const [errorInSAlida, setErrorInSalida] = useState(false);
-  const { productLabel, precioCostoLabel } = useLabel(name, precioCosto);
+  const { productLabel, precioCostoLabel } = useLabel(name, +precioCosto);
   const [productToCHange, setProductToChange] = useState(null);
   const [indexProductsRepeat, setIndexProductsRepeat] = useState([]);
   const [indexPosition, setIndexPosition] = useState(0);
@@ -213,7 +213,7 @@ export default function Salidas() {
   };
 
   const modifiInvButton = () => {
-    lessToInv(newProducts);
+    lessToInv(newProducts, "Salidas");
     setNewProducts([]);
   };
 
@@ -292,7 +292,7 @@ export default function Salidas() {
           ...newProducts,
           {
             fecha,
-            productID,
+            id:productID,
             name,
             precioCosto,
             unidadMedida,

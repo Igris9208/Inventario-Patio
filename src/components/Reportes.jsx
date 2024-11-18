@@ -73,10 +73,12 @@ export default function Reportes() {
         setShowProducts(addShowProducts);
         break;
     }
+    
     addShowProducts.length > 0 ? setShow(true) : setNotFound(true);
   };
 
   
+
   return (
     <main className="products">
       <Box

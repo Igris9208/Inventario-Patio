@@ -18,7 +18,7 @@ export function useLabel(name, precioCosto) {
   myProducts.forEach((product) => {
     if (!productLabel.includes(product.name)) {
       precioCosto
-        ? precioCosto === product.precioCosto.toString()
+        ? precioCosto === product.precioCosto
           ? productLabel.push(product.name)
           : true
         : productLabel.push(product.name);

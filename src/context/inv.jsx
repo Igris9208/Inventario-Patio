@@ -9,6 +9,7 @@ export function InvProvider({ children }) {
   const [trasladesToSellArea, setTrasladesToSellArea] = useState([]);
   const [ventasDiarias, setVentasDiarias] = useState([]);
   const [facturas, setFacturas] = useState([]);
+  const [traslados, setTraslados] = useState([]);
   const [indexProductChange, setIndexProductCHange] = useState(null);
   const [autenticate, setAutenticate] = useState(false);
 
@@ -30,29 +31,44 @@ export function InvProvider({ children }) {
     setIndexProductCHange(index === indexProductChange ? null : index);
   };
 
-  const lessToInv = (products) => {
+  const lessToInv = (products, type) => {
     let addProductToSellDay = ventasDiarias;
+    let lessTraslados = traslados;
+    let lessProduct = myProducts;
+
     products.forEach((product) => {
-      let index = myProducts.findIndex((prod) => prod.id === product.productID);
-      let lessProduct = myProducts;
-      lessProduct[index].stock -=
-        +product.sellVale + +product.sellPos + +product.sellInLine;
-      lessProduct[index].sellStock -=
-        +product.sellVale + +product.sellPos + +product.sellInLine;
-      setMyProducts(lessProduct);
-      addProductToSellDay.push(product);
-      setVentasDiarias(addProductToSellDay);
+      let index = myProducts.findIndex((prod) => prod.id === product.id);
+      if (type === "Salidas") {
+        lessProduct[index].stock -=
+          +product.sellVale + +product.sellPos + +product.sellInLine;
+        lessProduct[index].sellStock -=
+          +product.sellVale + +product.sellPos + +product.sellInLine;
+        addProductToSellDay.push(product);
+      }
+      if (type === "Traslado") {
+        lessProduct[index].stock -= product.stock;
+        lessProduct[index].sellStock < product.stock
+          ? (lessProduct[index].sellStock = 0)
+          : (lessProduct[index].sellStock -= product.stock);
+        lessTraslados.push(product);
+      }
     });
+    setMyProducts(lessProduct);
+    setTraslados(lessTraslados);
+    setVentasDiarias(addProductToSellDay);
   };
 
-  const addToInv = (newProducts) => {
+  const addToInv = (newProducts, type) => {
     let addFactura = facturas;
+    let addTraslados = traslados;
     let addProduct = myProducts;
     newProducts.forEach((product) => {
       if (product.id != "") {
         let index = myProducts.findIndex((prod) => prod.id === product.id);
         addProduct[index].stock += product.stock;
-        addFactura.push({ ...product });
+        type === "Factura"
+          ? addFactura.push({ ...product })
+          : addTraslados.push({ ...product });
       } else {
         let auxiliarID = myProducts[myProducts.length - 1].id + +1;
         addProduct.push({
@@ -67,11 +83,13 @@ export function InvProvider({ children }) {
           sellPrice: product.sellPrice,
         });
         setMyProducts(addProduct);
-        addFactura.push({ ...product, id: auxiliarID });
+        type === "Factura"
+          ? addFactura.push({ ...product, id: auxiliarID })
+          : addTraslados.push({ ...product, id: auxiliarID });
       }
     });
     setMyProducts(addProduct);
-    setFacturas(addFactura);
+    type === "Factura" ? setFacturas(addFactura) : setTraslados(addTraslados);
   };
 
   const totalPrice = myProducts.reduce(

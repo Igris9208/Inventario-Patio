@@ -20,7 +20,9 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
-import { FacTable } from "./showtable";
+import { TraslTable } from "./showtable";
+import { findProducts } from "../hooks/findProductsIndex";
+import Typography from "@mui/material/Typography";
 
 export default function Traslados() {
   const [newTraslado, SetNewTraslado] = useState([]);
@@ -31,7 +33,7 @@ export default function Traslados() {
   const [stock, setStock] = useState("");
   const [price, setPrice] = useState("");
   const [precioCosto, setPrecioCosto] = useState("");
-  const { addToInv, lessToInv } = useInv();
+  const { addToInv, lessToInv, myProducts } = useInv();
   const [addcrash, setAddCrash] = useState(false);
   const [tipoTraslado, setTipoTraslado] = useState("");
   const [key, setKey] = useState(true);
@@ -41,24 +43,60 @@ export default function Traslados() {
   const { productLabel, precioCostoLabel, unidadMedidaLabel, originLabel } =
     useLabel(name, precioCosto);
 
-  const handleChangeSelec = (event) => {
+  const [checkFind, setCheckFind] = useState(false);
+  const indexProductsRepeat = findProducts(name, precioCosto);
+  const [indexPosition, setIndexPosition] = useState(0);
+  const [sellPrice, setSellPrice] = useState(0);
+  const [actualStock, setActualStock] = useState(0);
+  const [idProductRepeat, setIDProductRepeat] = useState("");
+  const [auxiliarUnidadMedida, setAuxiliarUnidadMedida] = useState("");
+
+  let calcTotalStock = actualStock
+    ? tipoTraslado === "Recibido"
+      ? +actualStock + +stock
+      : +actualStock - stock
+    : stock;
+
+  const changeProductFounded = () => {
+    setAuxiliarUnidadMedida(unidadMedida);
+    setCheckFind(true);
+    let index = "";
+    if (indexProductsRepeat.length > 1) {
+      index = indexProductsRepeat[indexPosition % indexProductsRepeat.length];
+      setIndexPosition(indexPosition + 1);
+    } else {
+      index = indexProductsRepeat[0];
+    }
+    setSellPrice(myProducts[index].sellPrice);
+    setActualStock(myProducts[index].stock);
+    setIDProductRepeat(myProducts[index].id);
+    setUnidadMedida(myProducts[index].unidadMedida);
+  };
+
+  const cancelProductFounded = () => {
+    setUnidadMedida(auxiliarUnidadMedida);
+    setCheckFind(false);
+    setSellPrice(0);
+    setActualStock(0);
+    setIDProductRepeat("");
+  };
+
+  const changeTrasladeType = (event) => {
     setTipoTraslado(event.target.value);
+    event.target.value === "Recibido"
+      ? setDestiny('MULTIMAT "La Juvenil"')
+      : setOriging('MULTIMAT "La Juvenil"');
   };
 
   const addInvButton = () => {
     if (tipoTraslado === "Recibido") {
-      addToInv(newTraslado);
+      addToInv(newTraslado, "Traslado");
     } else {
-      lessToInv(newTraslado);
+      lessToInv(newTraslado, "Traslado");
     }
 
     SetNewTraslado([]);
   };
-
-  const totalPrice = newTraslado.reduce(
-    (accumulate, current) => accumulate + parseFloat(current.price),
-    0
-  );
 
   const addProduct = () => {
     event.preventDefault();
@@ -69,48 +107,68 @@ export default function Traslados() {
       unidadMedida === "" ||
       stock === "" ||
       tipoTraslado === "" ||
-      price === ""
+      price === "" ||
+      calcTotalStock < 0
     ) {
       setAddCrash(true);
       return;
     } else {
-      setTrasl("");
       setName("");
       setUnidadMedida("");
       setStock("");
       setKey(!key);
       setPrice("");
+      setPrecioCosto("");
       setAddCrash(false);
+      setActualStock(0);
+      setCheckFind(false);
       SetNewTraslado([
         ...newTraslado,
         {
           trasl,
+          tipoTraslado,
           fecha,
-          name,
-          stock,
-          price,
-          precioCosto,
-          unidadMedida,
           origin,
           destiny,
+          name,
+          unidadMedida,
+          stock,
+          precioCosto,
+          price,
+          id: idProductRepeat,
+          initialStock: actualStock,
+          totalStock: calcTotalStock,
         },
       ]);
     }
   };
 
   const calcInt = (value, selec) => {
-    if (selec === "costPrice") {
-      setPrecioCosto(value.toString());
-      setPrice(value * stock);
-    } else {
-      setPrecioCosto((value / stock).toString());
-      setPrice(value);
+    switch (selec) {
+      case "stock":
+        setStock(+value);
+        precioCosto
+          ? setPrice(+value * precioCosto)
+          : price
+          ? setPrecioCosto(price / +value)
+          : false;
+        break;
+      case "costPrice":
+        setPrecioCosto(+value);
+        stock
+          ? setPrice(+value * stock)
+          : price
+          ? setStock(price / +value)
+          : false;
+        break;
+      case "price":
+        setPrice(+value);
+        precioCosto
+          ? setStock(+value / precioCosto)
+          : stock
+          ? setPrecioCosto(+value / stock)
+          : false;
     }
-  };
-
-  const handleChange = (event) => {
-    const newStock = event.target.value;
-    setStock(newStock);
   };
 
   const defaultPrecioCosto = {
@@ -137,6 +195,7 @@ export default function Traslados() {
           <Grid item xs={12} container columnSpacing={1}>
             <Grid item xs={4}>
               <TextField
+                disabled={newTraslado.length > 0 ? true : false}
                 error={addcrash ? (trasl ? false : true) : false}
                 id="outlined-basic"
                 label="Num. de Traslado"
@@ -148,6 +207,7 @@ export default function Traslados() {
             <Grid item xs={4}>
               <FormControl
                 fullWidth
+                disabled={newTraslado.length > 0 ? true : false}
                 error={addcrash ? (tipoTraslado ? false : true) : false}
               >
                 <InputLabel id="demo-simple-select-label">
@@ -158,7 +218,7 @@ export default function Traslados() {
                   id="demo-simple-select"
                   value={tipoTraslado}
                   label="Tipo de Traslado"
-                  onChange={handleChangeSelec}
+                  onChange={changeTrasladeType}
                 >
                   <MenuItem value={"Recibido"}>Traslado Recibido</MenuItem>
                   <MenuItem value={"Enviado"}>Traslado Enviado</MenuItem>
@@ -169,8 +229,10 @@ export default function Traslados() {
             <Grid item xs={4}>
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DatePicker
+                  disabled={newTraslado.length > 0 ? true : false}
                   label="Fecha"
                   value={fecha}
+                  format="DD/MM/YY"
                   onChange={(newValue) => {
                     setFecha(newValue);
                   }}
@@ -182,6 +244,13 @@ export default function Traslados() {
             <Grid item xs={6}>
               <Autocomplete
                 freeSolo
+                disabled={
+                  tipoTraslado === "Enviado"
+                    ? true
+                    : newTraslado.length > 0
+                    ? true
+                    : false
+                }
                 {...defaultOrigin}
                 id="Procedencia"
                 renderInput={(params) => (
@@ -202,6 +271,13 @@ export default function Traslados() {
             <Grid item xs={6}>
               <Autocomplete
                 freeSolo
+                disabled={
+                  tipoTraslado === "Recibido"
+                    ? true
+                    : newTraslado.length > 0
+                    ? true
+                    : false
+                }
                 {...defaultOrigin}
                 id="Destino"
                 renderInput={(params) => (
@@ -224,6 +300,7 @@ export default function Traslados() {
             <Grid item xs={12}>
               <Autocomplete
                 freeSolo={tipoTraslado === "Recibido" ? true : false}
+                disabled={checkFind === true ? true : false}
                 {...defaultName}
                 id="Nombre del Producto"
                 renderInput={(params) => (
@@ -245,8 +322,8 @@ export default function Traslados() {
           <Grid item xs={12} container columnSpacing={1}>
             <Grid item xs={2}>
               <Autocomplete
-                freeSolo
-                sx={{ width: 200 }}
+                freeSolo={tipoTraslado === "Recibido" ? true : false}
+                disabled={checkFind === true ? true : false}
                 {...defaultUnidadMedida}
                 id="Unidad de Medida"
                 renderInput={(params) => (
@@ -257,7 +334,7 @@ export default function Traslados() {
                   />
                 )}
                 inputValue={unidadMedida}
-                onInputChange={(ev) =>
+                onInputChange={(ev, newInputValue) =>
                   ev ? setUnidadMedida(ev.target.value) : true
                 }
                 onChange={(e, value) => (value ? setUnidadMedida(value) : true)}
@@ -273,13 +350,13 @@ export default function Traslados() {
                 variant="outlined"
                 value={stock.toString()}
                 onKeyDown={handleKeyDownWithDot}
-                onChange={(ev) => setStock(ev.target.value)}
+                onChange={(ev) => calcInt(ev.target.value, "stock")}
               />
             </Grid>
             <Grid item xs={2}>
               <Autocomplete
-                disabled={stock ? false : true}
                 freeSolo={tipoTraslado === "Recibido" ? true : false}
+                disabled={checkFind === true ? true : false}
                 {...defaultPrecioCosto}
                 id="Precio de Costo"
                 renderInput={(params) => (
@@ -291,7 +368,7 @@ export default function Traslados() {
                 )}
                 inputValue={precioCosto.toString()}
                 onInputChange={(event, newInputValue) => {
-                  setPrecioCosto(newInputValue);
+                  calcInt(newInputValue, "costPrice");
                 }}
                 onKeyDown={handleKeyDownWithDot}
                 onChange={(e, value) =>
@@ -303,7 +380,6 @@ export default function Traslados() {
             <Grid item xs={2}>
               <TextField
                 error={addcrash ? (price ? false : true) : false}
-                disabled={stock ? false : true}
                 id="outlined-basic"
                 type="text"
                 label="Precio"
@@ -319,10 +395,101 @@ export default function Traslados() {
               />
             </Grid>
           </Grid>
+          {/* Cuando se encuentra una coincidencia en el inventario igual a la entrada*/}
+          {indexProductsRepeat.length > 0 && (
+            <Grid item xs={12} container spacing={1} alignItems={"center"}>
+              <Grid item xs={2.8} alignItems={"center"}>
+                {checkFind === false && (
+                  <Grid item>
+                    <Typography noWrap>
+                      Existen {indexProductsRepeat.length} productos similares.
+                    </Typography>
+                  </Grid>
+                )}
+                {checkFind === true && (
+                  <Grid item>
+                    <Typography noWrap>
+                      Mostrando producto #{" "}
+                      <strong>
+                        {(indexPosition % indexProductsRepeat.length) + 1}
+                      </strong>{" "}
+                    </Typography>
+                  </Grid>
+                )}
+              </Grid>
+              <Grid item xs={1.2}>
+                <Button
+                  color="info"
+                  variant="contained"
+                  onClick={changeProductFounded}
+                >
+                  {checkFind === false
+                    ? "SHOW"
+                    : indexProductsRepeat.length > 1
+                    ? "NEXT"
+                    : "SHOW"}
+                </Button>
+              </Grid>
 
+              {checkFind === true && (
+                <Grid item container xs alignItems={"center"} spacing={1}>
+                  <Grid item xs={3}>
+                    <Grid item>
+                      <strong>Precio de Venta</strong>
+                    </Grid>
+                    <Grid item>
+                      {sellPrice
+                        ? "$" + sellPrice.toString()
+                        : "Sin establecer"}
+                    </Grid>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Grid item>
+                      <strong>Existencia Actual</strong>
+                    </Grid>
+                    <Grid item>{actualStock.toString()}</Grid>
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Grid item>
+                      <strong>Existencia Final</strong>
+                    </Grid>
+                    <Grid item>{calcTotalStock}</Grid>
+                  </Grid>
+                  <Grid item xs={1.2}>
+                    <Button
+                      color="info"
+                      variant="contained"
+                      onClick={cancelProductFounded}
+                    >
+                      CANCEL
+                    </Button>
+                  </Grid>
+                </Grid>
+              )}
+            </Grid>
+          )}
+          {/* Mensaje de error cuando el stock sea negativo */}
+          {calcTotalStock < 0 && (
+            <Grid item xs={12} container columnSpacing={1}>
+              <Grid item xs={12}>
+                <strong>La Existencia Final no puede ser menor que 0.</strong>
+              </Grid>
+            </Grid>
+          )}
           <Grid item xs={12} container columnSpacing={1}>
             <Grid item xs={12}>
-              <Button color="info" variant="contained" onClick={addProduct}>
+              <Button
+                color="info"
+                variant="contained"
+                onClick={addProduct}
+                disabled={
+                  tipoTraslado === "Enviado"
+                    ? checkFind === true
+                      ? false
+                      : true
+                    : false
+                }
+              >
                 Adicionar Producto
               </Button>
             </Grid>
@@ -332,7 +499,7 @@ export default function Traslados() {
           {newTraslado.length > 0 && (
             <>
               <Grid item xs={12}>
-                <FacTable newProducts={newTraslado} tipo={"Traslado"} />
+                <TraslTable showProducts={newTraslado} />
               </Grid>
               <Grid item xs={12}>
                 <button className="boton azul" onClick={() => addInvButton()}>
